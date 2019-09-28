@@ -158,3 +158,27 @@ $ curl -X GET http://minikube:30003/api/todos
 ```
 
 ## Implementando o proxy para o TODO-APP usando o NGINX
+
+No processo anterior vimos que o TODO-APP foi exporto por 2 servicos "todo-app-external-srvc" e "todo-app-internal-srvc", agora vamos utilizar o serviço "todo-app-internal-srvc" para expor seu endpoint via nginx, após isso vamos remover a service que da acesso direto a api TODO-APP.
+
+Para inicializar o deploy execute o comando
+
+```sh
+$ kubectl apply -k backend-proxy/
+```
+
+Após a inicialização podemos verificar o funcionamento pelo commando
+```sh
+$ curl --request POST \
+  --url http://minikube:30080/v1/todo-app/todos \
+  --header 'Content-Type: application/json' \
+  --data '{"description": "Remover a service todo-app-external-srvc"}'
+
+$ curl -X GET http://minikube:30080/v1/todo-app/todos
+```
+
+Agora que garantimos o funcionamento do proxy, vamos remover a service que expoe o TODO-APP fora de nosso cluster
+
+```sh
+$ kubectl delete service todo-app-external-srvc
+```
