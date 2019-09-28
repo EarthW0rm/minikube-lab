@@ -135,3 +135,25 @@ Agora vamos disponibilizar dentro de nosso cluster uma Webapi para gerenciamento
 
 >Nativamente a aplicação expõe a porta 3003
 
+Utilizaremos nesse passo os arquivos de deploy contidos na pasta ./backend, utilizaremos também o kustomize para efetuar a composição desse deploy
+
+```sh
+$ envsub --syntax handlebars --env CONNECTION_STRING="mongodb://lab-mongodb-replicaset-0.lab-mongodb-replicaset.default.svc.cluster.local:27017,lab-mongodb-replicaset-1.lab-mongodb-replicaset.default.svc.cluster.local:27017,lab-mongodb-replicaset-2.lab-mongodb-replicaset.default.svc.cluster.local:27017?readPreference=primary&replicaSet=rs0&retryWrites=true" backend/kustomization.template.yaml backend/kustomization.yaml
+```
+
+Agora vamos executar o apply via kustomize, apos criado o arquivo de configuracao vamos executar o seginte comando
+
+```sh
+$ kubectl apply -k backend/
+```
+
+Para validar a exposicao da api podemos executar um cURL
+```sh
+$ curl --request POST \
+  --url http://minikube:30003/api/todos \
+  --header 'Content-Type: application/json' \
+  --data '{"description": "Participar do kubernetes - development lab"}'
+
+$ curl -X GET http://minikube:30003/api/todos
+```
+
