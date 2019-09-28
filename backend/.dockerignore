@@ -1,0 +1,8 @@
+.vscode
+Dockerfile
+*lock.json
+*.lock
+*.log
+README.md
+.gitignore
+node_modules
