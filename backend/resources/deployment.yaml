@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-app
+  labels:
+    app: todo-app
+spec:
+  selector:
+    matchLabels:
+      app: todo-app
+  template:
+    metadata:
+      labels:
+        app: todo-app
+    spec:
+      containers:
+      - name: todo-app
+        envFrom:
+        - configMapRef:
+            name: todo-app-props
+        image: earthworm013/minikube-lab-backend:1.0.0
+        ports:
+        - containerPort: 3003

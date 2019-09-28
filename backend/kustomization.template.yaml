@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+configMapGenerator:
+- name: todo-app-props
+  literals:
+    - CONNECTION_STRING={{CONNECTION_STRING}}
+resources:
+  - resources/deployment.yaml
+  - resources/service.yaml
+patchesStrategicMerge:
+  - limits/limit.yaml
+images:
+- name: earthworm013/minikube-lab-backend
+  newTag: 2.0.0
