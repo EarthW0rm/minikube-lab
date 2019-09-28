@@ -84,3 +84,44 @@ Agora vamos efetuar a implantacao de um deployment do mongo-express dentro do no
 > $ npm i -g envsub
 >```
 
+Agora utilizando o envsub vamos efetuar a substituicao da variavel {{HOSTS_LIST}} e criar o arquivo de deployment
+```sh
+$ envsub --syntax handlebars --env HOSTS_LIST=lab-mongodb-replicaset-0.lab-mongodb-replicaset.default.svc.cluster.local,lab-mongodb-replicaset-1.lab-mongodb-replicaset.default.svc.cluster.local,lab-mongodb-replicaset-2.lab-mongodb-replicaset.default.svc.cluster.local mongo-express/deployment.template.yaml mongo-express/deployment.yaml
+```
+
+Agora vamos executar o deploy
+
+```sh
+$ kubectl apply -f mongo-express/deployment.yaml
+```
+
+Conferindo a saude do deploy
+```sh
+$ kubectl get deployment
+
+$ kubectl describe deployment mongo-express
+
+$ kubectl get pods -l=app=mongo-express
+```
+
+Expondo o deploy via porta do cluster
+```sh
+$ kubectl expose deployment mongo-express --port=8081 --type=NodePort
+
+$ kubectl get service
+```
+
+Agora precisamos descobrir qual o ip que é exposto nosso cluster do minikube
+
+```sh
+$ minikube status
+
+host: Running
+kubelet: Running
+apiserver: Running
+kubectl: Correctly Configured: pointing to minikube-vm at 172.18.70.199
+```
+
+> Para facilitar voce pode adicionar esse ip ao hosts da sua maquina
+
+Agora verifique o acesso ao servico.
