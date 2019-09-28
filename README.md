@@ -125,3 +125,13 @@ kubectl: Correctly Configured: pointing to minikube-vm at 172.18.70.199
 > Para facilitar voce pode adicionar esse ip ao hosts da sua maquina
 
 Agora verifique o acesso ao servico.
+
+## Configurando e executando a aplicação Backend
+
+Agora vamos disponibilizar dentro de nosso cluster uma Webapi para gerenciamento de tarefas TODO-APP
+
+>O Código fonte dessa aplicacao esta na pasta source-files/backend/, para os que nao possuem docker uma imagem já foi preparada para utilização
+>[earthworm013/minikube-lab-backend](https://cloud.docker.com/u/earthworm013/repository/docker/earthworm013/minikube-lab-backend)
+
+>Nativamente a aplicação expõe a porta 3003
+
