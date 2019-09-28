@@ -8,7 +8,7 @@
 * [VirtualBox](https://tinyurl.com/5vgw4mp)
 * [Kubectl Command Reference](https://tinyurl.com/yxo3qhap)
 * [mongo-express](https://hub.docker.com/_/mongo-express)
-
+---
 ## Instalando o minikube
 
 Instalar a kubectl
@@ -33,6 +33,7 @@ $ minikube start
 > $ minikube start --vm-driver hyperv --hyperv-virtual-switch "minikube_switch”
 > ```
 
+---
 ## Habilitando o Helm
 
 Instalando o gerenciador de pacotes Helm
@@ -49,6 +50,8 @@ Adicionando o repositório de pacotes do helm
 ```sh
 $ helm repo add stable https://kubernetes-charts.storage.googleapis.com/
 ```
+
+---
 ## Implantando um MongoDB em ReplicaSet
 
 Para facilitar a tarefa utilizaremos um Helm Chart o [mongodb-replicaset](https://tinyurl.com/y2cgwf9f)
@@ -76,6 +79,7 @@ $ for ((i = 0; i < 3; ++i)); do kubectl exec --namespace default lab-mongodb-rep
 ...
 ```
 
+---
 ## Configurando o mongo-express para acesso Externo ao ReplicaSet do MongoDB
 Agora vamos efetuar a implantacao de um deployment do mongo-express dentro do nosso minikube
 
@@ -126,6 +130,7 @@ kubectl: Correctly Configured: pointing to minikube-vm at 172.18.70.199
 
 Agora verifique o acesso ao servico.
 
+---
 ## Configurando e executando a aplicação Backend
 
 Agora vamos disponibilizar dentro de nosso cluster uma Webapi para gerenciamento de tarefas TODO-APP
@@ -157,6 +162,7 @@ $ curl --request POST \
 $ curl -X GET http://minikube:30003/api/todos
 ```
 
+---
 ## Implementando o proxy para o TODO-APP usando o NGINX
 
 No processo anterior vimos que o TODO-APP foi exporto por 2 servicos "todo-app-external-srvc" e "todo-app-internal-srvc", agora vamos utilizar o serviço "todo-app-internal-srvc" para expor seu endpoint via nginx, após isso vamos remover a service que da acesso direto a api TODO-APP.
@@ -182,3 +188,4 @@ Agora que garantimos o funcionamento do proxy, vamos remover a service que expoe
 ```sh
 $ kubectl delete service todo-app-external-srvc
 ```
+
