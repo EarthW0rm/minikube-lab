@@ -6,7 +6,7 @@
 * [Chocolatey](https://tinyurl.com/hpaeoy8)
 * [Helm](https://tinyurl.com/y4a6pnkd)
 * [VirtualBox](https://tinyurl.com/5vgw4mp)
-* [Kubectl Command Reference](ttps://tinyurl.com/yxo3qhap)
+* [Kubectl Command Reference](https://tinyurl.com/yxo3qhap)
 * [mongo-express](https://hub.docker.com/_/mongo-express)
 
 ## Instalando o minikube
