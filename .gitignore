@@ -3,3 +3,5 @@ mongo-express/deployment.yaml
 *.log
 backend/kustomization.yaml
 **/package-lock.json
+**/frontend/public/*
+!**/frontend/public/index.html
