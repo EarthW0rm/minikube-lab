@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab-nginx
+  labels:
+    app: lab-nginx
+spec:
+  selector:
+    matchLabels:
+      app: lab-nginx
+  template:
+    metadata:
+      labels:
+        app: lab-nginx
+    spec:
+      containers:
+      - name: lab-nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /etc/nginx
+          readOnly: true
+          name: nginx-conf
+      volumes:
+      - name: nginx-conf
+        configMap:
+          name: nginx-conf
+          items:
+            - key: nginx.conf
+              path: nginx.conf

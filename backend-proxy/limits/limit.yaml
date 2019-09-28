@@ -1,0 +1,13 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: lab-nginx
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: lab-nginx
+        resources:
+          limits:
+            memory: 128Mi

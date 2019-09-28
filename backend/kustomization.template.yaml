@@ -6,7 +6,8 @@ configMapGenerator:
     - CONNECTION_STRING={{CONNECTION_STRING}}
 resources:
   - resources/deployment.yaml
-  - resources/service.yaml
+  - resources/service.external.yaml
+  - resources/service.internal.yaml
 patchesStrategicMerge:
   - limits/limit.yaml
 images:

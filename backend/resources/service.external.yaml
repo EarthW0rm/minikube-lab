@@ -1,7 +1,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: todo-app-srvc
+  name: todo-app-external-srvc
   labels:
     app: todo-app
 spec:

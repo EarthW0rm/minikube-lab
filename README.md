@@ -157,3 +157,4 @@ $ curl --request POST \
 $ curl -X GET http://minikube:30003/api/todos
 ```
 
+## Implementando o proxy para o TODO-APP usando o NGINX
