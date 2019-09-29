@@ -99,7 +99,12 @@ $ kubectl get pod
 
 Recuperar as informações referente ao cluster
 ```sh
-$ for ((i = 0; i < 3; ++i)); do kubectl exec --namespace default lab-mongodb-replicaset-$i -- sh -c 'mongo --eval="printjson(rs.isMaster())"'; done
+$ for ((i = 0; i < 3; ++i)); \
+    do kubectl exec \
+    --namespace default \
+    lab-mongodb-replicaset-$i -- sh \
+    -c 'mongo --eval="printjson(rs.isMaster())"';\
+    done
 
 ...
 "hosts" : [
