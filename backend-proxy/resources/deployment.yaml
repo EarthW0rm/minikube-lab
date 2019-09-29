@@ -1,31 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: lab-nginx
+  name: backend-proxy
   labels:
-    app: lab-nginx
+    app: backend-proxy
 spec:
   selector:
     matchLabels:
-      app: lab-nginx
+      app: backend-proxy
   template:
     metadata:
       labels:
-        app: lab-nginx
+        app: backend-proxy
     spec:
       containers:
-      - name: lab-nginx
+      - name: backend-proxy
         image: nginx:latest
         ports:
         - containerPort: 80
         volumeMounts:
         - mountPath: /etc/nginx
           readOnly: true
-          name: nginx-conf
+          name: backend-proxy-conf
       volumes:
-      - name: nginx-conf
+      - name: backend-proxy-conf
         configMap:
-          name: nginx-conf
+          name: backend-proxy-conf
           items:
             - key: nginx.conf
               path: nginx.conf

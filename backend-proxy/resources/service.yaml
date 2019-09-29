@@ -1,9 +1,9 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: lab-nginx-srvc
+  name: backend-proxy-srvc
   labels:
-    app: lab-nginx
+    app: backend-proxy
 spec:
   ports:
     - protocol: TCP
@@ -11,6 +11,6 @@ spec:
       targetPort: 80
       nodePort: 30080
   selector:
-    app: lab-nginx
+    app: backend-proxy
   type: NodePort
   externalTrafficPolicy: Cluster

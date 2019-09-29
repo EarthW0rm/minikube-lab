@@ -1,7 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 configMapGenerator:
-- name: todo-app-props
+- name: todo-api-props
   literals:
     - CONNECTION_STRING={{CONNECTION_STRING}}
 resources:

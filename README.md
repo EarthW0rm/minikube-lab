@@ -133,7 +133,7 @@ Agora verifique o acesso ao servico.
 ---
 ## Configurando e executando a aplicação Backend
 
-Agora vamos disponibilizar dentro de nosso cluster uma Webapi para gerenciamento de tarefas TODO-APP
+Agora vamos disponibilizar dentro de nosso cluster uma Webapi para gerenciamento de tarefas TODO-API
 
 >O Código fonte dessa aplicacao esta na pasta source-files/backend/, para os que nao possuem docker uma imagem já foi preparada para utilização
 >[earthworm013/minikube-lab-backend](https://cloud.docker.com/u/earthworm013/repository/docker/earthworm013/minikube-lab-backend)
@@ -163,9 +163,9 @@ $ curl -X GET http://minikube:30003/api/todos
 ```
 
 ---
-## Implementando o proxy para o TODO-APP usando o NGINX
+## Implementando o proxy para o TODO-API usando o NGINX
 
-No processo anterior vimos que o TODO-APP foi exporto por 2 servicos "todo-app-external-srvc" e "todo-app-internal-srvc", agora vamos utilizar o serviço "todo-app-internal-srvc" para expor seu endpoint via nginx, após isso vamos remover a service que da acesso direto a api TODO-APP.
+No processo anterior vimos que o TODO-API foi exporto por 2 servicos "todo-api-external-srvc" e "todo-api-internal-srvc", agora vamos utilizar o serviço "todo-api-internal-srvc" para expor seu endpoint via nginx, após isso vamos remover a service que da acesso direto a api TODO-API.
 
 Para inicializar o deploy execute o comando
 
@@ -176,18 +176,18 @@ $ kubectl apply -k backend-proxy/
 Após a inicialização podemos verificar o funcionamento pelo commando
 ```sh
 $ curl --request POST \
-  --url http://minikube:30080/v1/todo-app/todos \
+  --url http://minikube:30080/v1/todo-api/todos \
   --header 'Content-Type: application/json' \
-  --data '{"description": "Remover a service todo-app-external-srvc"}'
+  --data '{"description": "Remover a service todo-api-external-srvc"}'
 
-$ curl -X GET http://minikube:30080/v1/todo-app/todos
+$ curl -X GET http://minikube:30080/v1/todo-api/todos
 ```
 
-Agora que garantimos o funcionamento do proxy, vamos remover a service que expoe o TODO-APP fora de nosso cluster
+Agora que garantimos o funcionamento do proxy, vamos remover a service que expoe o TODO-API fora de nosso cluster
 
 ```sh
-$ kubectl delete service todo-app-external-srvc
+$ kubectl delete service todo-api-external-srvc
 ```
 
 ---
-## Implementando o aplicativo final, o web site para gerenciamento de tarefas
+## Implementando o aplicativo final, o web site para gerenciamento de tarefas TODO-APP
