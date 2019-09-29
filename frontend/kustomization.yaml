@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+configMapGenerator:
+- name: user-interface-conf
+  files:
+  - nginx.conf
+  - mime.types
+resources:
+  - resources/deployment.yaml
+  - resources/service.yaml
+patchesStrategicMerge:
+  - limits/limit.yaml
+images:
+- name: earthworm013/minikube-lab-frontend
+  newTag: 1.0.0

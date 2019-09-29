@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-interface
+  labels:
+    app: user-interface
+spec:
+  selector:
+    matchLabels:
+      app: user-interface
+  template:
+    metadata:
+      labels:
+        app: user-interface
+    spec:
+      containers:
+      - name: user-interface
+        image: earthworm013/minikube-lab-frontend:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /etc/nginx
+          readOnly: true
+          name: user-interface-conf
+      volumes:
+      - name: user-interface-conf
+        configMap:
+          name: user-interface-conf
+          items:
+            - key: nginx.conf
+              path: nginx.conf
+            - key: mime.types
+              path: mime.types

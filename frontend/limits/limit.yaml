@@ -1,0 +1,13 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: user-interface
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: user-interface
+        resources:
+          limits:
+            memory: 64Mi
