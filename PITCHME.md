@@ -1,3 +1,10 @@
+---
+marp: true
+theme: gaia
+color: white
+backgroundColor: #25252B
+
+---
 # KUBERNETES DEVELOPMENT LAB
 
 ## O que é o kubernetes?
@@ -83,7 +90,7 @@ $ helm repo add stable https://kubernetes-charts.storage.googleapis.com/
 ---
 ## LET'S CODE
 
-![alt](https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif)
+![width:500px](https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif)
 
 ---
 ## Implantando um MongoDB em ReplicaSet
@@ -102,19 +109,10 @@ $ kubectl get pod
 ```
 Recuperar as informações referente ao cluster
 ```sh
-$ for ((i = 0; i < 3; ++i)); \
-    do kubectl exec \
-    --namespace default \
+$ for ((i = 0; i < 3; ++i)); do kubectl exec --namespace default \
     lab-mongodb-replicaset-$i -- sh \
     -c 'mongo --eval="printjson(rs.isMaster())"';\
     done
-...
-"hosts" : [
-        "lab-mongodb-replicaset-0.lab-mongodb-replicaset.default.svc.cluster.local:27017",
-        "lab-mongodb-replicaset-1.lab-mongodb-replicaset.default.svc.cluster.local:27017",
-        "lab-mongodb-replicaset-2.lab-mongodb-replicaset.default.svc.cluster.local:27017"
-],
-...
 ```
 
 ---
@@ -162,7 +160,7 @@ mongo-express                   NodePort    10.109.51.68    <none>        8081:3
 ---
 ### Agora verifique o acesso ao serviço.
 ```sh
-$ start chrome http://minikube:30210/
+$ start chrome http://minikube:${NODE_PORT}/
 ```
 > A porta de saida será definida automaticamente, subistitua pela porta definida em seu serviço
 
@@ -185,13 +183,13 @@ Utilizaremos nesse passo os arquivos de deploy contidos na pasta ./backend, util
 $ envsub --syntax handlebars --env CONNECTION_STRING="mongodb://lab-mongodb-replicaset-0.lab-mongodb-replicaset.default.svc.cluster.local:27017,lab-mongodb-replicaset-1.lab-mongodb-replicaset.default.svc.cluster.local:27017,lab-mongodb-replicaset-2.lab-mongodb-replicaset.default.svc.cluster.local:27017?readPreference=primary&replicaSet=rs0&retryWrites=true" backend/kustomization.template.yaml backend/kustomization.yaml
 ```
 
----
 Agora vamos executar o apply via kustomize, apos criado o arquivo de configuracao vamos executar o seginte comando
 
 ```sh
 $ kubectl apply -k backend/
 ```
 
+---
 Para validar a exposicao da api podemos executar um cURL
 ```sh
 $ curl --request POST \
@@ -202,7 +200,6 @@ $ curl --request POST \
 $ curl -X GET http://minikube:30003/api/todos
 ```
 
----
 ![Its Alive](https://media.giphy.com/media/RPwrO4b46mOdy/giphy.gif)
 
 ---
@@ -244,13 +241,14 @@ Chegamos ao passo final, implantar o aplicativo de interface do usuário.
 $ kubectl apply -k user-interface/
 ```
 
+---
 Após a inicialização podemos verificar o funcionamento pelo commando
 ```sh
 $ curl -X GET http://minikube:30000/
 
 $ start chrome http://minikube:30000/
 ```
----
+
 ![Congrats](https://media.giphy.com/media/g9582DNuQppxC/giphy.gif)
 
 ---
@@ -260,7 +258,7 @@ Bem agora que implantamos nossa estrutura inicial é hora de aplicar o conhecime
 O desafio agora é criar uma estrutura de configuracoes para os aplicativos, com 2 ambientes, developmet e produção.
 
 ---
-![I KNOW???](https://github.com/EarthW0rm/minikube-lab/blob/master/content/IKnow.PNG?raw=true)
+![width:600px](https://github.com/EarthW0rm/minikube-lab/blob/master/content/IKnow.PNG?raw=true)
 
 ---
 ## Links úteis
