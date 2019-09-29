@@ -189,3 +189,5 @@ Agora que garantimos o funcionamento do proxy, vamos remover a service que expoe
 $ kubectl delete service todo-app-external-srvc
 ```
 
+---
+## Implementando o aplicativo final, o web site para gerenciamento de tarefas
