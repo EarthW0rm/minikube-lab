@@ -1,9 +1,9 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: todo-api-external-srvc
+  name: backend-api-external-srvc
   labels:
-    app: todo-api
+    app: backend-api
 spec:
   ports:
     - protocol: TCP
@@ -11,6 +11,6 @@ spec:
       targetPort: 3003
       nodePort: 30003
   selector:
-    app: todo-api
+    app: backend-api
   type: NodePort
   externalTrafficPolicy: Cluster

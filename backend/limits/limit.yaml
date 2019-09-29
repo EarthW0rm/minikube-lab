@@ -1,13 +1,13 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: todo-api
+  name: backend-api
 spec:
   replicas: 3
   template:
     spec:
       containers:
-      - name: todo-api
+      - name: backend-api
         resources:
           limits:
             memory: 128Mi

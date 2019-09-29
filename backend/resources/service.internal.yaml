@@ -1,14 +1,14 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: todo-api-internal-srvc
+  name: backend-api-internal-srvc
   labels:
-    app: todo-api
+    app: backend-api
 spec:
   ports:
     - protocol: TCP
       port: 3003
   selector:
-    app: todo-api
+    app: backend-api
   clusterIP: None
   type: ClusterIP
