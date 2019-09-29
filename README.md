@@ -1,13 +1,26 @@
 # KUBERNETES DEVELOPMENT LAB
 
-## Links úteis
+## O que é o kubernetes?
+* Kubernetes (K8s) é um sistema de orquestração de contêiners open-source que automatiza a implantação, o dimensionamento e a gestão de aplicações em contêiners. 
+* Ele foi originalmente projetado pelo Google e agora é mantido pela Cloud Native Computing Foundation.
+* A palavra "Kubernetes" vem do Grego (κυβερνήτης -kyvernítis) que significa Timoneiro, Comandante.
+Kubernetes v1.0, foi lançado em 21 de julho de 2015.
 
-* [NodeJS](https://nodejs.org/en/download/)
+---
+## Objetos principais do K8s
+* [POD](https://kubernetes.io/docs/concepts/workloads/pods/pod/) – um grupo de um ou mais containers.
+* [SERVICE](https://kubernetes.io/docs/concepts/services-networking/service/) – expõe seu pods por uma rede interna ou externa.
+* [DEPLOYMENT](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) – gera os pods, configura e os mantém vivos.
+* [NODE](https://kubernetes.io/docs/concepts/architecture/nodes/) – uma VM ou maquina física que compõe o cluster do kubernetes.
+* [CONFIGMAP](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/) – objeto responsável por guardar configurações para execução dos pods
+
+---
+## Pré-requisitos para o lab
 * [Chocolatey](https://tinyurl.com/hpaeoy8)
-* [Helm](https://tinyurl.com/y4a6pnkd)
-* [VirtualBox](https://tinyurl.com/5vgw4mp)
-* [Kubectl Command Reference](https://tinyurl.com/yxo3qhap)
-* [mongo-express](https://hub.docker.com/_/mongo-express)
+* [NodeJS](https://nodejs.org/en/download/)
+* [VirtualBox](https://tinyurl.com/5vgw4mp) ou Hyper-V
+
+
 ---
 ## Instalando o minikube
 
@@ -33,6 +46,20 @@ $ minikube start
 > $ minikube start --vm-driver hyperv --hyperv-virtual-switch "minikube_switch”
 > ```
 
+Agora precisamos descobrir qual o ip que é exposto nosso cluster do minikube
+
+```sh
+$ minikube status
+
+host: Running
+kubelet: Running
+apiserver: Running
+kubectl: Correctly Configured: pointing to minikube-vm at 172.18.70.199
+```
+
+> ### **Nesse lab consideramos que o ip foi adicionado ao arquivo hosts e nomeado como minikube**
+> Ex: 172.18.70.199     minikube
+
 ---
 ## Habilitando o Helm
 
@@ -50,6 +77,10 @@ Adicionando o repositório de pacotes do helm
 ```sh
 $ helm repo add stable https://kubernetes-charts.storage.googleapis.com/
 ```
+---
+## LET'S CODE
+
+![alt](https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif)
 
 ---
 ## Implantando um MongoDB em ReplicaSet
@@ -113,23 +144,18 @@ Expondo o deploy via porta do cluster
 $ kubectl expose deployment mongo-express --port=8081 --type=NodePort
 
 $ kubectl get service
+...
+mongo-express                   NodePort    10.109.51.68    <none>        8081:30210/TCP   6s
 ```
 
-Agora precisamos descobrir qual o ip que é exposto nosso cluster do minikube
-
+### Agora verifique o acesso ao serviço.
 ```sh
-$ minikube status
-
-host: Running
-kubelet: Running
-apiserver: Running
-kubectl: Correctly Configured: pointing to minikube-vm at 172.18.70.199
+$ start chrome http://minikube:30210/
 ```
+> A porta de saida será definida automaticamente, subistitua pela porta definida em seu serviço
 
-> ### **Nesse lab consideramos que o ip foi adicionado ao arquivo hosts e nomeado como minikube**
-> Ex: 172.18.70.199     minikube
-
-Agora verifique o acesso ao servico.
+---
+![alt](https://media.giphy.com/media/dIsw2AfNMSC1W/giphy.gif)
 
 ---
 ## Configurando e executando a aplicação Backend
@@ -162,11 +188,18 @@ $ curl --request POST \
 
 $ curl -X GET http://minikube:30003/api/todos
 ```
+---
+
+![Its Alive](https://media.giphy.com/media/RPwrO4b46mOdy/giphy.gif)
 
 ---
 ## Implementando o proxy para o backend-api usando o NGINX
 
 No processo anterior vimos que o backend-api foi exporto por 2 servicos "backend-api-external-srvc" e "backend-api-internal-srvc", agora vamos utilizar o serviço "backend-api-internal-srvc" para expor seu endpoint via nginx, após isso vamos remover a service que da acesso direto a api backend-api.
+
+### Cuidado com os hackers
+
+![Beware of Hackers](https://media.giphy.com/media/YQitE4YNQNahy/giphy.gif)
 
 Para inicializar o deploy execute o comando
 
@@ -208,15 +241,19 @@ $ curl -X GET http://minikube:30000/
 $ start chrome http://minikube:30000/
 ```
 ---
-![I KNOW???](https://github.com/EarthW0rm/minikube-lab/blob/master/content/IKnow.PNG?raw=true)
+![Congrats](https://media.giphy.com/media/g9582DNuQppxC/giphy.gif)
 
 ---
-
 # LAB CHALLENGE
 Bem agora que implantamos nossa estrutura inicial é hora de aplicar o conhecimento e ir mais além.
 
 O desafio agora é criar uma estrutura de configuracoes para os aplicativos, com 2 ambientes, developmet e produção.
 
-## LET'S CODE
+---
+![I KNOW???](https://github.com/EarthW0rm/minikube-lab/blob/master/content/IKnow.PNG?raw=true)
 
-![alt](https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif)
+---
+## Links úteis
+* [Kubectl Command Reference](https://tinyurl.com/yxo3qhap)
+* [mongo-express](https://hub.docker.com/_/mongo-express)
+* [Helm](https://tinyurl.com/y4a6pnkd)
