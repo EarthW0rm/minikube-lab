@@ -1,4 +1,4 @@
-# minikube-lab
+# KUBERNETES DEVELOPMENT LAB
 
 ## Links úteis
 
@@ -126,7 +126,8 @@ apiserver: Running
 kubectl: Correctly Configured: pointing to minikube-vm at 172.18.70.199
 ```
 
-> Para facilitar voce pode adicionar esse ip ao hosts da sua maquina
+> ### **Nesse lab consideramos que o ip foi adicionado ao arquivo hosts e nomeado como minikube**
+> Ex: 172.18.70.199     minikube
 
 Agora verifique o acesso ao servico.
 
@@ -190,4 +191,32 @@ $ kubectl delete service backend-api-external-srvc
 ```
 
 ---
-## Implementando o aplicativo final, o web site para gerenciamento de tarefas TODO-APP
+## Implementando o aplicativo final, o web site para gerenciamento de tarefas user-interface
+
+Chegamos ao passo final, implantar o aplicativo de interface do usuário.
+>O Código fonte dessa aplicacao esta na pasta source-files/frontend/, para os que nao possuem docker uma imagem já foi preparada para utilização
+>[earthworm013/minikube-lab-frontend](https://cloud.docker.com/u/earthworm013/repository/docker/earthworm013/minikube-lab-frontend)
+
+```sh
+$ kubectl apply -k user-interface/
+```
+
+Após a inicialização podemos verificar o funcionamento pelo commando
+```sh
+$ curl -X GET http://minikube:30000/
+
+$ start chrome http://minikube:30000/
+```
+---
+![I KNOW???](https://github.com/EarthW0rm/minikube-lab/blob/master/content/IKnow.PNG?raw=true)
+
+---
+
+# LAB CHALLENGE
+Bem agora que implantamos nossa estrutura inicial é hora de aplicar o conhecimento e ir mais além.
+
+O desafio agora é criar uma estrutura de configuracoes para os aplicativos, com 2 ambientes, developmet e produção.
+
+## LET'S CODE
+
+![alt](https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif)
