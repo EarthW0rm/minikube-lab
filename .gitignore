@@ -1,4 +1,3 @@
-mongo-express/deployment.yaml
 **/node_modules
 *.log
 backend/kustomization.yaml

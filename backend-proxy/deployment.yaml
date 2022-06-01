@@ -22,6 +22,10 @@ spec:
         - mountPath: /etc/nginx
           readOnly: true
           name: backend-proxy-conf
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
       volumes:
       - name: backend-proxy-conf
         configMap:
@@ -29,3 +33,4 @@ spec:
           items:
             - key: nginx.conf
               path: nginx.conf
+              

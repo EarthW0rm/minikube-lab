@@ -1,7 +1,7 @@
 # KUBERNETES DEVELOPMENT LAB
 
 ## O que é o kubernetes?
-* Kubernetes (K8s) é um sistema de orquestração de contêiners open-source que automatiza a implantação, o dimensionamento e a gestão de aplicações em contêiners. 
+* Kubernetes (K8s) é um sistema de orquestração de containers open-source que automatiza a implantação, o dimensionamento e a gestão de aplicações em containers. 
 * Ele foi originalmente projetado pelo Google e agora é mantido pela Cloud Native Computing Foundation.
 * A palavra "Kubernetes" vem do Grego (κυβερνήτης -kyvernítis) que significa Timoneiro, Comandante.
 Kubernetes v1.0, foi lançado em 21 de julho de 2015.
@@ -11,134 +11,117 @@ Kubernetes v1.0, foi lançado em 21 de julho de 2015.
 * [POD](https://kubernetes.io/docs/concepts/workloads/pods/pod/) – um grupo de um ou mais containers.
 * [SERVICE](https://kubernetes.io/docs/concepts/services-networking/service/) – expõe seu pods por uma rede interna ou externa.
 * [DEPLOYMENT](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) – gera os pods, configura e os mantém vivos.
+* [NAMESPACE](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) - é um mecanismo para isolar grupos de recursos
 * [NODE](https://kubernetes.io/docs/concepts/architecture/nodes/) – uma VM ou maquina física que compõe o cluster do kubernetes.
 * [CONFIGMAP](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/) – objeto responsável por guardar configurações para execução dos pods
 
 ---
 ## Pré-requisitos para o lab
-* [Chocolatey](https://tinyurl.com/hpaeoy8)
 * [NodeJS](https://nodejs.org/en/download/)
-* [VirtualBox](https://tinyurl.com/5vgw4mp) ou Hyper-V
+* [kubectl](https://kubernetes.io/docs/tasks/tools/)
+* [minikube - *selecionar o driver compatível com seu sistema*](https://minikube.sigs.k8s.io/docs/drivers/)
 
 
----
 ## Instalando o minikube
 
-Instalar a kubectl
+O processo de instalação do minikube vai depender do driver que optar para instalação, a lista de drivers pode ser encontrada [nesse link](https://minikube.sigs.k8s.io/docs/drivers/)
+
+> Para quem utiliza MAC M1, uma alternativa e utilizar em conjunto com o [driver do Podman](https://minikube.sigs.k8s.io/docs/drivers/podman/) (Experimental), nesse lab vamos utilizar essa opção.
+
+---
+## Inicializando o Podman Machine
 ```sh
-$ choco install kubernetes-cli
+$ podman machine init --cpus=2 -m=5000
+
+$ podman machine start
+
+$ podman machine set --rootful
 ```
 
-Instalar o minikube
-```sh
-$ choco install minikube
-```
+Informando o parametro `--cpus` como 2, vamos dispor uma vm podman com 2 cores que é o valor mínimo para execução do minikube nesse ambiente
+
+Para evitar problemas de compatibilidade, também vamos definir a propriedade `--rootful`, isso permite o acesso root pelos containers
 
 ---
 ## Inicializando o minikube
 Inicializar o minikube
 ```sh
-$ minikube config set kubernetes-version v1.15.3
-
-$ minikube start 
+$ minikube start --driver=podman --insecure-registry="ip:5000"
 ```
-
-> Caso utilize o  Hyper-v
-> ```sh
-> $ minikube start --vm-driver hyperv --hyperv-virtual-switch "minikube_switch”
-> ```
 
 ---
-Agora precisamos descobrir qual o ip que é exposto nosso cluster do minikube
-
+## Verificando se o cluster foi criado
 ```sh
-$ minikube status
+$ kubectl get nodes
 
-host: Running
-kubelet: Running
-apiserver: Running
-kubectl: Correctly Configured: pointing to minikube-vm at 172.18.70.199
+$ kubectl get pods --namespace kube-system
 ```
 
-> **Nesse lab consideramos que o ip foi adicionado ao arquivo hosts e nomeado como minikube**
-> Ex: 172.18.70.199     minikube
-
----
-## Habilitando o Helm
-
-Instalando o gerenciador de pacotes Helm
-```sh
-$ choco install kubernetes-helm
-```
-
-Inicializando o Helm e instalando o pacote tiller no minikube
-```sh
-$ helm init --wait
-```
-
-Adicionando o repositório de pacotes do helm
-```sh
-$ helm repo add stable https://kubernetes-charts.storage.googleapis.com/
-```
 ---
 ## LET'S CODE
-
 ![alt](https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif)
 
 ---
-## Implantando um MongoDB em ReplicaSet
+## Criando um namespace
+Vamos criar um namespace para separar os componentes do nosso software
 
-Para facilitar a tarefa utilizaremos um Helm Chart o [mongodb-replicaset](https://tinyurl.com/y2cgwf9f)
-
-Instalando o [mongodb-replicaset](https://tinyurl.com/y2cgwf9f) no minikube
 ```sh
-$ helm install --name lab stable/mongodb-replicaset
+$ kubectl create namespace todo-app
 ```
 
 ---
-### Recuperando informações para conexao do mongo express
+## Implantando uma instancia de MongoDB
+
+Vamos aplicar nosso primeiro deployment, vamos iniciar uma instancia do MongoDB para ser utilizada em conjunto com o TODO App que será implementado
+
 ```sh
-$ kubectl get pod
+$ kubectl apply --namespace todo-app -f mongodb/deployment.yaml
+
+$ kubectl get pod --namespace todo-app
 ```
-Recuperar as informações referente ao cluster
+
+Agora, já temos nosso container com o MongoDB rodando, mas isso nao é suficiente precisamos expor uma entrada para esse POD na porta 27017.
+
 ```sh
-$ for ((i = 0; i < 3; ++i)); \
-    do kubectl exec \
-    --namespace default \
-    lab-mongodb-replicaset-$i -- sh \
-    -c 'mongo --eval="printjson(rs.isMaster())"';\
-    done
-...
-"hosts" : [
-        "lab-mongodb-replicaset-0.lab-mongodb-replicaset.default.svc.cluster.local:27017",
-        "lab-mongodb-replicaset-1.lab-mongodb-replicaset.default.svc.cluster.local:27017",
-        "lab-mongodb-replicaset-2.lab-mongodb-replicaset.default.svc.cluster.local:27017"
-],
-...
+$ kubectl expose deployment mongodb --namespace=todo-app --port=27017 --type=ClusterIP --cluster-ip=None
+```
+
+Também podemos utilizar um arquivo yaml para criar uma Service, utilizando o `kubectl apply`.
+
+```sh
+$ kubectl apply --namespace todo-app -f mongodb/service.yaml
+```
+
+Verificando os serviços criados
+```sh
+$ kubectl get service --namespace=todo-app
 ```
 
 ---
-## Configurando o mongo-express para acesso Externo ao ReplicaSet do MongoDB
+## Utilizando o kubectl port-forward
+Em alguma situações vamos precisar expor portas de nossas aplicações dentro do orquestrador, para isso podemos utilizar o `kubeclt port-forward`.
+Vamos executar o comando e conectar no nosso MongoDB que foi criando dentro do cluster.
+
+```sh
+$ kubectl port-forward svc/mongodb-svc 27017:27017 --namespace=todo-app
+```
+
+Pronto, agora o deploy do nosso mongoDB está exposto na nossa porta 27017.
+
+> Para outros drivers do minikube é possivel utilizar o `minikube service <service-name> --url`
+
+> A connection string que vamos utilizar é: mongodb://root:techtalk@127.0.0.1:27017
+
+---
+
+## Configurando o mongo-express para acesso Externo ao MongoDB
 Agora vamos efetuar a implantacao de um deployment do mongo-express dentro do nosso minikube
 
-> ### Para efetuar o replace das variaveis dentro dos templates utilizaremos o pacote npm [envsub](https://www.npmjs.com/package/envsub)
-> ```sh
-> $ npm i -g envsub
->```
-
----
-### Utilizando o envsub para interpretar o template
-
-Agora utilizando o envsub vamos efetuar a substituicao da variavel {{HOSTS_LIST}} e criar o arquivo de deployment
 ```sh
-$ envsub --syntax handlebars --env HOSTS_LIST=lab-mongodb-replicaset-0.lab-mongodb-replicaset.default.svc.cluster.local,lab-mongodb-replicaset-1.lab-mongodb-replicaset.default.svc.cluster.local,lab-mongodb-replicaset-2.lab-mongodb-replicaset.default.svc.cluster.local mongo-express/deployment.template.yaml mongo-express/deployment.yaml
+$ kubectl apply -f mongo-express/deployment.yaml --namespace=todo-app
 ```
 
-Agora vamos executar o deploy
-
-```sh
-$ kubectl apply -f mongo-express/deployment.yaml
-```
+kubectl expose deployment mongo-express --type=LoadBalancer --port=8081 --namespace=todo-app
 
 ---
 ### Conferindo a saude do deploy do mongo-express
@@ -150,56 +133,84 @@ $ kubectl describe deployment mongo-express
 $ kubectl get pods -l=app=mongo-express
 ```
 
-### Expondo o deploy via porta do cluster
-```sh
-$ kubectl expose deployment mongo-express --port=8081 --type=NodePort
+### Expondo o deploy utilizando o LoadBalance do minikube
+Com o minikube também podemos simular serviços do tipo LoadBalance, serviços esses que podem ser responsáveis por expor seus aplicativos para fora do cluster
 
-$ kubectl get service
-...
-mongo-express                   NodePort    10.109.51.68    <none>        8081:30210/TCP   6s
+Vamos inicializar o [tunel no minikube](https://minikube.sigs.k8s.io/docs/handbook/accessing/#using-minikube-tunnel)
+
+```sh
+$ minikube tunnel
+```
+
+Agora vamos expor a aplicação na porta 8081
+
+```sh
+$ kubectl expose deployment mongo-express --type=LoadBalancer --port=8081 --namespace=todo-app
+
+$ kubectl get service --namespace=todo-app
 ```
 
 ---
 ### Agora verifique o acesso ao serviço.
-```sh
-$ start chrome http://minikube:30210/
-```
-> A porta de saida será definida automaticamente, subistitua pela porta definida em seu serviço
+
+* [http://localhost:8081/](http://localhost:8081/)
 
 ![alt](https://media.giphy.com/media/dIsw2AfNMSC1W/giphy.gif)
 
 ---
-## Configurando e executando a aplicação Backend
+## Criando a imagem de container da aplicação Backend
 
 Agora vamos disponibilizar dentro de nosso cluster uma Webapi para gerenciamento de tarefas backend-api
 
->O Código fonte dessa aplicacao esta na pasta source-files/backend/, para os que nao possuem docker uma imagem já foi preparada para utilização
->[earthworm013/minikube-lab-backend](https://cloud.docker.com/u/earthworm013/repository/docker/earthworm013/minikube-lab-backend)
+>O Código fonte dessa aplicacao esta na pasta source-files/backend/
 
 >Nativamente a aplicação expõe a porta 3003
 
----
-Utilizaremos nesse passo os arquivos de deploy contidos na pasta ./backend, utilizaremos também o kustomize para efetuar a composição desse deploy
+O Primeiro passo é efetuar o build da nossa imagem, nesse lab vamos utilizar o podman.
 
 ```sh
-$ envsub --syntax handlebars --env CONNECTION_STRING="mongodb://lab-mongodb-replicaset-0.lab-mongodb-replicaset.default.svc.cluster.local:27017,lab-mongodb-replicaset-1.lab-mongodb-replicaset.default.svc.cluster.local:27017,lab-mongodb-replicaset-2.lab-mongodb-replicaset.default.svc.cluster.local:27017?readPreference=primary&replicaSet=rs0&retryWrites=true" backend/kustomization.template.yaml backend/kustomization.yaml
+$ podman build -t minikube-lab-backend  -f Dockerfile source-files/backend/
+
+$ podman image ls
+```
+
+Agora vamos exportar um .tar dessa imagem para carregar dentro da VM do minikube
+
+```sh
+$ podman save --format=docker-archive --output=minikube-lab-backend.tar localhost/minikube-lab-backend
+```
+
+Carregando a imagem na VM do minkube
+
+```sh
+$ minikube image load minikube-lab-backend.tar
+
+$ minikube image ls
 ```
 
 ---
-Agora vamos executar o apply via kustomize, apos criado o arquivo de configuracao vamos executar o seginte comando
+## Implantando a aplicação Backend
+Vamos executar o apply para executar o deployment.yaml e do service.yaml
 
 ```sh
-$ kubectl apply -k backend/
+$ kubectl apply -f backend/deployment.yaml --namespace=todo-app
+
+$ kubectl apply -f backend/service.yaml --namespace=todo-app
 ```
 
-Para validar a exposicao da api podemos executar um cURL
+Para validar a exposicao da api podemos utilizar um `kubectl port-forward` executar um cURL
+
+```sh
+$ kubectl port-forward svc/backend-api-svc 3003:3003 --namespace=todo-app
+```
+
 ```sh
 $ curl --request POST \
-  --url http://minikube:30003/api/todos \
+  --url http://localhost:3003/api/todos \
   --header 'Content-Type: application/json' \
   --data '{"description": "Participar do kubernetes - development lab"}'
 
-$ curl -X GET http://minikube:30003/api/todos
+$ curl -X GET http://localhost:3003/api/todos
 ```
 
 ---
@@ -208,62 +219,86 @@ $ curl -X GET http://minikube:30003/api/todos
 ---
 ## Implementando o proxy para o backend-api usando o NGINX
 
-No processo anterior vimos que o backend-api foi exporto por 2 servicos "backend-api-external-srvc" e "backend-api-internal-srvc", agora vamos utilizar o serviço "backend-api-internal-srvc" para expor seu endpoint via nginx, após isso vamos remover a service que da acesso direto a api backend-api.
+No processo anterior vimos que o backend-api foi exporto por um serviço interno podemos utilizar o nginx para expor esse endpoint utilizando o LoadBalance.
 
-Para inicializar o deploy execute o comando
+Primeiro vamos implantar nosso ConfigMap que contém o arquivo de configuração do nginx
 
 ```sh
-$ kubectl apply -k backend-proxy/
+$ kubectl apply -f backend-proxy/configmap.yaml --namespace=todo-app
 ```
 
----
-Após a inicialização podemos verificar o funcionamento pelo commando
+Agora podemos levantar o deployment
+
+```sh
+$ kubectl apply -f backend-proxy/deployment.yaml --namespace=todo-app
+```
+
+Com tudo pronto, vamos levantar o serviço LoadBalance e inicializar nosso tunnel no minikube
+
+```sh
+$ kubectl apply -f backend-proxy/service.yaml --namespace=todo-app
+
+$ minikube tunnel
+```
+
 ```sh
 $ curl --request POST \
-  --url http://minikube:30080/v1/backend-api/todos \
+  --url http://localhost:8080/v1/backend-api/todos \
   --header 'Content-Type: application/json' \
   --data '{"description": "Remover a service backend-api-external-srvc"}'
 
-$ curl -X GET http://minikube:30080/v1/backend-api/todos
-```
-
-Agora que garantimos o funcionamento do proxy, vamos remover a service que expoe o backend-api fora de nosso cluster
-
-```sh
-$ kubectl delete service backend-api-external-srvc
+$ curl -X GET http://localhost:8080/v1/backend-api/todos
 ```
 
 ---
-## Implementando o aplicativo final, o web site para gerenciamento de tarefas user-interface
+## Criando a imagem de container da aplicação Frontend
 
 Chegamos ao passo final, implantar o aplicativo de interface do usuário.
->O Código fonte dessa aplicacao esta na pasta source-files/frontend/, para os que nao possuem docker uma imagem já foi preparada para utilização
->[earthworm013/minikube-lab-frontend](https://cloud.docker.com/u/earthworm013/repository/docker/earthworm013/minikube-lab-frontend)
+>O Código fonte dessa aplicacao esta na pasta source-files/frontend/
 
 ```sh
-$ kubectl apply -k user-interface/
+$ podman build -t minikube-lab-frontend  -f Dockerfile source-files/frontend/
+
+$ podman image ls
 ```
 
-Após a inicialização podemos verificar o funcionamento pelo commando
+Agora vamos exportar um .tar dessa imagem para carregar dentro da VM do minikube
+
 ```sh
-$ curl -X GET http://minikube:30000/
-
-$ start chrome http://minikube:30000/
+$ podman save --format=docker-archive --output=minikube-lab-frontend.tar localhost/minikube-lab-frontend
 ```
----
+
+Carregando a imagem na VM do minkube
+
+```sh
+$ minikube image load minikube-lab-frontend.tar
+
+$ minikube image ls
+```
+
+## Implantando a aplicação Frontend
+Agora vamos executar os applys necessários para o app frontend
+
+```sh
+$ kubectl apply -f frontend/configmap.yaml --namespace=todo-app
+
+$ kubectl apply -f frontend/deployment.yaml --namespace=todo-app
+
+$ kubectl apply -f frontend/service.yaml --namespace=todo-app
+
+```
+
+Inicialize o minikube tunnel, e teste seu TODO APP
+
+```sh
+$ minikube tunnel
+```
+
+> Acesse pelo link [http://localhost/](http://localhost/)
+
+
 ![Congrats](https://media.giphy.com/media/g9582DNuQppxC/giphy.gif)
-
----
-# LAB CHALLENGE
-Bem agora que implantamos nossa estrutura inicial é hora de aplicar o conhecimento e ir mais além.
-
-O desafio agora é criar uma estrutura de configuracoes para os aplicativos, com 2 ambientes, developmet e produção.
-
----
-![I KNOW???](https://github.com/EarthW0rm/minikube-lab/blob/master/content/IKnow.PNG?raw=true)
 
 ---
 ## Links úteis
 * [Kubectl Command Reference](https://tinyurl.com/yxo3qhap)
-* [mongo-express](https://hub.docker.com/_/mongo-express)
-* [Helm](https://tinyurl.com/y4a6pnkd)

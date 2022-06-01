@@ -1,33 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: user-interface
+  name: frontend
   labels:
-    app: user-interface
+    app: frontend
 spec:
   selector:
     matchLabels:
-      app: user-interface
+      app: frontend
   template:
     metadata:
       labels:
-        app: user-interface
+        app: frontend
     spec:
       containers:
-      - name: user-interface
-        image: earthworm013/minikube-lab-frontend:latest
+      - name: frontend
+        image: localhost/minikube-lab-frontend:latest
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
         volumeMounts:
         - mountPath: /etc/nginx
           readOnly: true
-          name: user-interface-conf
+          name: frontend-conf
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
       volumes:
-      - name: user-interface-conf
+      - name: frontend-conf
         configMap:
-          name: user-interface-conf
+          name: frontend-conf
           items:
             - key: nginx.conf
               path: nginx.conf
             - key: mime.types
               path: mime.types
+              

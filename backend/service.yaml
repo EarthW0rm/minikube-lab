@@ -1,16 +1,14 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: backend-api-external-srvc
+  name: backend-api-svc
   labels:
     app: backend-api
 spec:
   ports:
     - protocol: TCP
       port: 3003
-      targetPort: 3003
-      nodePort: 30003
   selector:
     app: backend-api
-  type: NodePort
-  externalTrafficPolicy: Cluster
+  clusterIP: None
+  type: ClusterIP

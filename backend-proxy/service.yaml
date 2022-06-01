@@ -1,16 +1,14 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: backend-proxy-srvc
+  name: backend-proxy-svc
   labels:
     app: backend-proxy
 spec:
   ports:
     - protocol: TCP
-      port: 80
+      port: 8080
       targetPort: 80
-      nodePort: 30080
   selector:
     app: backend-proxy
-  type: NodePort
-  externalTrafficPolicy: Cluster
+  type: LoadBalancer

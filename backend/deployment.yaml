@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-api
+  labels:
+    app: backend-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: backend-api
+  template:
+    metadata:
+      labels:
+        app: backend-api
+    spec:
+      containers:
+      - name: backend-api
+        imagePullPolicy: IfNotPresent
+        image: localhost/minikube-lab-backend:latest
+        env:
+        - name: CONNECTION_STRING
+          value: mongodb://root:techtalk@mongodb-svc:27017/
+        ports:
+        - containerPort: 3003
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
