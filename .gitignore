@@ -1,6 +1,8 @@
 **/node_modules
 *.log
+*.tar
 backend/kustomization.yaml
 **/package-lock.json
 **/frontend/public/*
 !**/frontend/public/index.html
+source-files/frontend/.DS_Store

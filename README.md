@@ -121,20 +121,26 @@ Agora vamos efetuar a implantacao de um deployment do mongo-express dentro do no
 $ kubectl apply -f mongo-express/deployment.yaml --namespace=todo-app
 ```
 
-kubectl expose deployment mongo-express --type=LoadBalancer --port=8081 --namespace=todo-app
-
 ---
 ### Conferindo a saude do deploy do mongo-express
 ```sh
-$ kubectl get deployment
+$ kubectl get deployment --namespace=todo-app
 
-$ kubectl describe deployment mongo-express
+$ kubectl describe deployment mongo-express --namespace=todo-app
 
-$ kubectl get pods -l=app=mongo-express
+$ kubectl get pods -l=app=mongo-express --namespace=todo-app
 ```
 
 ### Expondo o deploy utilizando o LoadBalance do minikube
 Com o minikube também podemos simular serviços do tipo LoadBalance, serviços esses que podem ser responsáveis por expor seus aplicativos para fora do cluster
+
+> Nativamente a aplicação expõe a porta 8081
+
+```sh
+$ kubectl expose deployment mongo-express --type=LoadBalancer --port=27000 --target-port=8081 --namespace=todo-app
+
+$ kubectl get service --namespace=todo-app
+```
 
 Vamos inicializar o [tunel no minikube](https://minikube.sigs.k8s.io/docs/handbook/accessing/#using-minikube-tunnel)
 
@@ -142,18 +148,10 @@ Vamos inicializar o [tunel no minikube](https://minikube.sigs.k8s.io/docs/handbo
 $ minikube tunnel
 ```
 
-Agora vamos expor a aplicação na porta 8081
-
-```sh
-$ kubectl expose deployment mongo-express --type=LoadBalancer --port=8081 --namespace=todo-app
-
-$ kubectl get service --namespace=todo-app
-```
-
 ---
 ### Agora verifique o acesso ao serviço.
 
-* [http://localhost:8081/](http://localhost:8081/)
+* [http://localhost:27000/](http://localhost:27000/)
 
 ![alt](https://media.giphy.com/media/dIsw2AfNMSC1W/giphy.gif)
 
@@ -198,6 +196,13 @@ $ kubectl apply -f backend/deployment.yaml --namespace=todo-app
 $ kubectl apply -f backend/service.yaml --namespace=todo-app
 ```
 
+Verificando a saúde do deploy
+```sh
+$ kubectl describe deployment backend-api --namespace=todo-app
+
+$ kubectl get pods -l=app=backend-api --namespace=todo-app
+```
+
 Para validar a exposicao da api podemos utilizar um `kubectl port-forward` executar um cURL
 
 ```sh
@@ -233,6 +238,13 @@ Agora podemos levantar o deployment
 $ kubectl apply -f backend-proxy/deployment.yaml --namespace=todo-app
 ```
 
+Verificando a saúde do deploy
+```sh
+$ kubectl describe deployment backend-proxy --namespace=todo-app
+
+$ kubectl get pods -l=app=backend-proxy --namespace=todo-app
+```
+
 Com tudo pronto, vamos levantar o serviço LoadBalance e inicializar nosso tunnel no minikube
 
 ```sh
@@ -245,7 +257,7 @@ $ minikube tunnel
 $ curl --request POST \
   --url http://localhost:8080/v1/backend-api/todos \
   --header 'Content-Type: application/json' \
-  --data '{"description": "Remover a service backend-api-external-srvc"}'
+  --data '{"description": "Colocar imagens engraçadas no treinamento"}'
 
 $ curl -X GET http://localhost:8080/v1/backend-api/todos
 ```
