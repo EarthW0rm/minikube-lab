@@ -312,5 +312,16 @@ minikube tunnel
 ![Congrats](https://media.giphy.com/media/g9582DNuQppxC/giphy.gif)
 
 ---
-## Links úteis
-* [Kubectl Command Reference](https://tinyurl.com/yxo3qhap)
+## Ainda não acabou, hora de limpar a bagunça
+
+```sh
+minikube stop
+
+minikube delete
+```
+
+```sh
+podman machine stop
+
+podman machine rm
+```
